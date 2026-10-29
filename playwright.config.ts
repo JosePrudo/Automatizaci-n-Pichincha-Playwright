@@ -23,9 +23,15 @@ export default defineConfig({
     navigationTimeout: 45_000,
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
-    { name: 'mobile-chrome', use: { ...devices['Pixel 7'] } },
+    { name: 'chrome', use: { ...devices['Desktop Chrome'], channel: 'chrome' } },
+    // Otros navegadores solo si se ejecuta con ALL_BROWSERS=true
+    ...(process.env.ALL_BROWSERS === 'true'
+      ? [
+          { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+          { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+          { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+          { name: 'mobile-chrome', use: { ...devices['Pixel 7'] } },
+        ]
+      : []),
   ],
 });
