@@ -1,0 +1,83 @@
+- generic [ref=e2]:
+  - generic [ref=e6]:
+    - img "Banco Pichincha Logo - Parte 1" [ref=e8]
+    - img "Banco Pichincha Logo - Parte 2" [ref=e10]
+    - img "Banco Pichincha Logo - Parte 3" [ref=e12]
+    - img "Banco Pichincha Logo - Parte 4" [ref=e14]
+    - img "Banco Pichincha Logo - Parte 5" [ref=e16]
+    - img "Banco Pichincha Logo - Parte 6" [ref=e18]
+    - img "Banco Pichincha Logo - Parte 7" [ref=e20]
+    - img "Banco Pichincha Logo - Parte 8" [ref=e22]
+    - img "Banco Pichincha Logo - Parte 9" [ref=e24]
+    - img "Banco Pichincha Logo - Parte 10" [ref=e26]
+    - img "Banco Pichincha Logo - Parte 11" [ref=e28]
+    - img "Banco Pichincha Logo - Parte 12" [ref=e30]
+    - img "Banco Pichincha Logo - Parte 13" [ref=e32]
+    - img "Banco Pichincha Logo - Parte 14" [ref=e34]
+    - img "Banco Pichincha Logo - Parte 15" [ref=e36]
+  - main [ref=e38]:
+    - generic [ref=e40]:
+      - heading "Tu Credito de Vivienda" [level=1] [ref=e42]
+      - generic [ref=e45]:
+        - generic [ref=e46]:
+          - generic [ref=e47]: "1"
+          - generic [ref=e48]: Proyecto
+        - generic [ref=e51]:
+          - generic [ref=e52]: "2"
+          - generic [ref=e53]: Finanzas
+        - generic [ref=e56]:
+          - generic [ref=e57]: "3"
+          - generic [ref=e58]: Personaliza
+        - generic [ref=e61]:
+          - generic [ref=e62]: "4"
+          - generic [ref=e63]: Resultados
+        - generic [ref=e66]:
+          - generic [ref=e67]: "5"
+          - generic [ref=e68]: Capacidades
+        - generic [ref=e71]:
+          - generic [ref=e72]: "6"
+          - generic [ref=e73]: Contacto
+        - generic [ref=e76]:
+          - generic [ref=e77]: "7"
+          - generic [ref=e78]: Confirmación
+      - generic [ref=e79]:
+        - text: "`"
+        - generic [ref=e81]:
+          - heading "Tu proyecto de vivienda" [level=2] [ref=e83]
+          - generic [ref=e84]:
+            - text: "`"
+            - generic [ref=e85]:
+              - generic [ref=e86]: ¿Aplicas solo o en pareja?
+              - generic [ref=e88]:
+                - generic [ref=e89]:
+                  - radio "Individual" [ref=e90] [cursor=pointer]
+                  - generic [ref=e91]: Individual
+                - generic [ref=e92]:
+                  - radio "Pareja" [ref=e93] [cursor=pointer]
+                  - generic [ref=e94]: Pareja
+            - generic [ref=e95]:
+              - generic [ref=e96]: ¿Qué tipo de vivienda buscas?
+              - generic [ref=e98]:
+                - generic [ref=e99]:
+                  - radio "Casa" [ref=e100] [cursor=pointer]
+                  - generic [ref=e101]: Casa
+                - generic [ref=e102]:
+                  - radio "Apartamento" [ref=e103] [cursor=pointer]
+                  - generic [ref=e104]: Apartamento
+            - generic [ref=e105]:
+              - generic [ref=e106]: ¿En qué ciudad?
+              - combobox [ref=e109]:
+                - option "Seleccione" [selected]
+                - option "Quito"
+                - option "Guayaquil"
+                - option "Cuenca"
+                - option "Ambato"
+                - option "Manta"
+            - generic [ref=e110]:
+              - generic [ref=e111]: ¿Cuánto cuesta aproximadamente?
+              - generic [ref=e113]:
+                - generic [ref=e114]:
+                  - slider: "170000"
+                  - slider: "500000"
+                - generic [ref=e117]: $174,950.00 – $500,000.00 (valor estimado)
+          - button "Siguiente" [disabled] [ref=e120]
