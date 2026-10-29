@@ -50,6 +50,35 @@ const checkAutorizaBanco = () => page.locator('#authorizeCreditCheck');
 const inputCargasFamiliares = () => page.getByPlaceholder('Cargas familiares');
 const inputLugarTrabajo = () => page.getByPlaceholder('Compañía de tecnología S.A.S');
 
+// Paso "Quiero que me contacten"
+const radioHorarioManana = () => page.locator('input[name="preferredTime"][value="mañana"]');
+const radioContactoWhatsapp = () => page.locator('input[name="contactMethod"][value="whatsapp"]');
+const checkRecibirInformacion = () => page.locator('#wantsProductInfo');
+
+// Paso "Confirmación"
+const checkConfirmarInformacion = () => page.locator('#confirmInformation');
+const botonAceptarYEnviar = () => page.getByRole('button', { name: 'Aceptar y Enviar' });
+
+// La API real rechaza el origen del sitio por CORS (defecto del backend); se simula su respuesta.
+// Ejecutar con API_REAL=true para probar contra el backend real.
+async function simularApiProcesar() {
+  if (process.env.API_REAL === 'true') return;
+  await page.route('**/api/Simulacion/procesar', async (route) => {
+    const headers = {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    };
+    if (route.request().method() === 'OPTIONS') return route.fulfill({ status: 204, headers });
+    return route.fulfill({
+      status: 200,
+      headers,
+      contentType: 'application/json',
+      body: JSON.stringify({ success: true, message: 'Simulación procesada correctamente' }),
+    });
+  });
+}
+
 // Pasos del flujo en orden; cada prueba ejecuta los previos que falten si se corre de forma aislada.
 const pasos = [
   async () => { await page.goto('https://brave-mud-0605ba20f.3.azurestaticapps.net/'); },
@@ -86,6 +115,22 @@ const pasos = [
   async () => { await inputCargasFamiliares().fill('0'); },
   async () => { await inputLugarTrabajo().fill('SWO'); },
   async () => { await botonSiguiente().click(); },
+  // Quiero que me contacten
+  async () => { await radioHorarioManana().check(); },
+  async () => { await radioContactoWhatsapp().check(); },
+  async () => { await checkRecibirInformacion().check(); },
+  async () => { await botonSiguiente().click(); },
+  // Confirmación
+  async () => { await checkConfirmarInformacion().check(); },
+  async () => {
+    await simularApiProcesar();
+    const [envio] = await Promise.all([
+      page.waitForRequest('**/api/Simulacion/procesar'),
+      botonAceptarYEnviar().click(),
+    ]);
+    // Espera a que el envío termine (con respuesta o con fallo) antes de verificar.
+    await envio.response();
+  },
 ];
 let pasosCompletados = 0;
 
@@ -236,6 +281,40 @@ test('Ingresar lugar de trabajo', async () => {
 test('Clic en Siguiente - Tu capacidad real', async () => {
   await ejecutarPaso(24);
   await expect(page.getByText('Quiero que me Contacten')).toBeVisible();
+});
+
+// Quiero que me contacten
+test('Seleccionar horario de llamada', async () => {
+  await ejecutarPaso(25);
+  await expect(radioHorarioManana()).toBeChecked();
+});
+
+test('Seleccionar preferencia de contacto', async () => {
+  await ejecutarPaso(26);
+  await expect(radioContactoWhatsapp()).toBeChecked();
+});
+
+test('Aceptar recibir información', async () => {
+  await ejecutarPaso(27);
+  await expect(checkRecibirInformacion()).toBeChecked();
+});
+
+test('Clic en Siguiente - Quiero que me contacten', async () => {
+  await ejecutarPaso(28);
+  await expect(page.getByText('¡Listo! Te contactaremos pronto')).toBeVisible();
+});
+
+// Confirmación
+test('Confirmar que la información es correcta', async () => {
+  await ejecutarPaso(29);
+  await expect(checkConfirmarInformacion()).toBeChecked();
+  await expect(botonAceptarYEnviar()).toBeEnabled();
+});
+
+test('Clic en Aceptar y Enviar', async () => {
+  await ejecutarPaso(30);
+  await expect(page.getByText('¡Simulación Enviada!')).toBeVisible();
+  await expect(page.getByText('Error en el Envío')).toBeHidden();
 });
 
 
