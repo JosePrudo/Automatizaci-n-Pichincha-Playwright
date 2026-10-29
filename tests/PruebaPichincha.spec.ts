@@ -55,7 +55,7 @@ const radioHorarioManana = () => page.locator('input[name="preferredTime"][value
 const radioContactoWhatsapp = () => page.locator('input[name="contactMethod"][value="whatsapp"]');
 const checkRecibirInformacion = () => page.locator('#wantsProductInfo');
 
-// Paso "Confirmación "
+// Paso "Confirmación"
 const checkConfirmarInformacion = () => page.locator('#confirmInformation');
 const botonAceptarYEnviar = () => page.getByRole('button', { name: 'Aceptar y Enviar' });
 
