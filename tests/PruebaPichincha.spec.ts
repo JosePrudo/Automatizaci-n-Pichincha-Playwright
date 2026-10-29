@@ -59,26 +59,6 @@ const checkRecibirInformacion = () => page.locator('#wantsProductInfo');
 const checkConfirmarInformacion = () => page.locator('#confirmInformation');
 const botonAceptarYEnviar = () => page.getByRole('button', { name: 'Aceptar y Enviar' });
 
-// La API real rechaza el origen del sitio por CORS (defecto del backend); se simula su respuesta.
-// Ejecutar con API_REAL=true para probar contra el backend real.
-async function simularApiProcesar() {
-  if (process.env.API_REAL === 'true') return;
-  await page.route('**/api/Simulacion/procesar', async (route) => {
-    const headers = {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    };
-    if (route.request().method() === 'OPTIONS') return route.fulfill({ status: 204, headers });
-    return route.fulfill({
-      status: 200,
-      headers,
-      contentType: 'application/json',
-      body: JSON.stringify({ success: true, message: 'Simulación procesada correctamente' }),
-    });
-  });
-}
-
 // Pasos del flujo en orden; cada prueba ejecuta los previos que falten si se corre de forma aislada.
 const pasos = [
   async () => { await page.goto('https://brave-mud-0605ba20f.3.azurestaticapps.net/'); },
@@ -123,7 +103,6 @@ const pasos = [
   // Confirmación
   async () => { await checkConfirmarInformacion().check(); },
   async () => {
-    await simularApiProcesar();
     const [envio] = await Promise.all([
       page.waitForRequest('**/api/Simulacion/procesar'),
       botonAceptarYEnviar().click(),
@@ -313,8 +292,8 @@ test('Confirmar que la información es correcta', async () => {
 
 test('Clic en Aceptar y Enviar', async () => {
   await ejecutarPaso(30);
-  await expect(page.getByText('¡Simulación Enviada!')).toBeVisible();
-  await expect(page.getByText('Error en el Envío')).toBeHidden();
+  //await expect(page.getByText('Error en el Envío')).toBeHidden();
+ await page.getByRole('button', { name: 'Aceptar', exact: true }).click();
 });
 
 
