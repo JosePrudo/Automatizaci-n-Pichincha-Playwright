@@ -26,6 +26,30 @@ const sliderCostoMin = () => page.locator('input[type="range"]').nth(0);
 const sliderCostoMax = () => page.locator('input[type="range"]').nth(1);
 const botonSiguiente = () => page.getByRole('button', { name: 'Siguiente' });
 
+// Paso "Tu situación financiera"
+const radioEmpleado = () => page.locator('input[name="laborSituation"][value="empleado"]');
+const inputIngresosNetos = () => page.getByPlaceholder('Ingresos netos');
+const inputTotalAhorrado = () => page.getByPlaceholder('Total ahorrado');
+const inputFechaNacimiento = () => page.locator('input[type="date"]');
+const selectEstadoCivil = () => page.locator('select:has(option[value="casado"])');
+
+// Paso "Personaliza tu crédito de vivienda"
+const inputMontoPrestamo = () => page.getByPlaceholder('Monto total del préstamo');
+const selectPlazoAnios = () => page.locator('select:has(option[value="20"])');
+const radioCuotaFija = () => page.locator('input[name="paymentType"][value="fija"]');
+
+// Paso "Tus resultados"
+const botonCapacidadReal = () => page.getByRole('button', { name: '¿Quieres conocer tu capacidad real?' });
+
+// Paso "Tu capacidad real"
+const inputNombreCompleto = () => page.getByPlaceholder('Nombre completo');
+const inputCedula = () => page.getByPlaceholder('Documento de identidad');
+const inputCorreo = () => page.getByPlaceholder('Correo electrónico @');
+const inputCelular = () => page.locator('input[type="tel"]');
+const checkAutorizaBanco = () => page.locator('#authorizeCreditCheck');
+const inputCargasFamiliares = () => page.getByPlaceholder('Cargas familiares');
+const inputLugarTrabajo = () => page.getByPlaceholder('Compañía de tecnología S.A.S');
+
 // Pasos del flujo en orden; cada prueba ejecuta los previos que falten si se corre de forma aislada.
 const pasos = [
   async () => { await page.goto('https://brave-mud-0605ba20f.3.azurestaticapps.net/'); },
@@ -37,10 +61,36 @@ const pasos = [
     await sliderCostoMax().fill('1000000');
   },
   async () => { await botonSiguiente().click(); },
+  // Tu situación financiera
+  async () => { await radioEmpleado().check(); },
+  // blur() dispara el formateo de moneda del campo.
+  async () => { await inputIngresosNetos().fill('500000'); await inputIngresosNetos().blur(); },
+  async () => { await inputTotalAhorrado().fill('1000000'); await inputTotalAhorrado().blur(); },
+  // Los input date usan formato ISO: 08/03/1987 (dd/mm/aaaa) -> 1987-03-08.
+  async () => { await inputFechaNacimiento().fill('1987-03-08'); },
+  async () => { await selectEstadoCivil().selectOption('casado'); },
+  async () => { await botonSiguiente().click(); },
+  // Personaliza tu crédito de vivienda
+  async () => { await inputMontoPrestamo().fill('5000000'); await inputMontoPrestamo().blur(); },
+  async () => { await selectPlazoAnios().selectOption('20'); },
+  async () => { await radioCuotaFija().check(); },
+  async () => { await botonSiguiente().click(); },
+  // Tus resultados
+  async () => { await botonCapacidadReal().click(); },
+  // Tu capacidad real
+  async () => { await inputNombreCompleto().fill('Jose Prudencio Padilla Berrio'); },
+  async () => { await inputCedula().fill('1234567890'); },
+  async () => { await inputCorreo().fill('swo@gmail.com'); },
+  async () => { await inputCelular().fill('1234567890'); },
+  async () => { await checkAutorizaBanco().check(); },
+  async () => { await inputCargasFamiliares().fill('0'); },
+  async () => { await inputLugarTrabajo().fill('SWO'); },
+  async () => { await botonSiguiente().click(); },
 ];
 let pasosCompletados = 0;
 
 async function ejecutarPaso(indice: number) {
+  if (pasosCompletados > indice) return;
   while (pasosCompletados < indice) {
     await pasos[pasosCompletados]();
     pasosCompletados++;
@@ -82,6 +132,111 @@ test('Clic en Siguiente', async () => {
 });
 
 // Fin del primer flujo
+
+// Tu situación financiera
+test('Seleccionar situación laboral', async () => {
+  await ejecutarPaso(6);
+  await expect(radioEmpleado()).toBeChecked();
+});
+
+test('Ingresar ingresos netos', async () => {
+  await ejecutarPaso(7);
+  await expect(inputIngresosNetos()).toHaveValue('$500,000.00');
+});
+
+test('Ingresar total ahorrado', async () => {
+  await ejecutarPaso(8);
+  await expect(inputTotalAhorrado()).toHaveValue('$1,000,000.00');
+});
+
+test('Seleccionar fecha de nacimiento', async () => {
+  await ejecutarPaso(9);
+  await expect(inputFechaNacimiento()).toHaveValue('1987-03-08');
+});
+
+test('Seleccionar estado civil', async () => {
+  await ejecutarPaso(10);
+  await expect(selectEstadoCivil()).toHaveValue('casado');
+});
+
+test('Clic en Siguiente - Situación financiera', async () => {
+  await ejecutarPaso(11);
+  await expect(page.getByText('Personaliza tu crédito de vivienda')).toBeVisible();
+});
+
+// Personaliza tu crédito de vivienda
+test('Ingresar monto a prestar', async () => {
+  await ejecutarPaso(12);
+  await expect(inputMontoPrestamo()).toHaveValue('$5,000,000.00');
+});
+
+test('Seleccionar plazo en años', async () => {
+  await ejecutarPaso(13);
+  await expect(selectPlazoAnios()).toHaveValue('20');
+});
+
+test('Seleccionar tipo de cuota', async () => {
+  await ejecutarPaso(14);
+  await expect(radioCuotaFija()).toBeChecked();
+});
+
+test('Clic en Siguiente - Personaliza tu crédito', async () => {
+  await ejecutarPaso(15);
+  await expect(page.getByText('Tus resultados')).toBeVisible();
+});
+
+// Tus resultados
+test('Verificar texto de cuota y seguros', async () => {
+  // Solo verifica: llega a "Tus resultados" sin ejecutar una acción nueva.
+  await ejecutarPaso(15);
+  await expect(page.getByText('Aquí ve su cuota y los seguros')).toBeVisible();
+});
+
+test('Clic en Quieres conocer tu capacidad real', async () => {
+  await ejecutarPaso(16);
+  await expect(page.getByText('Tu capacidad real')).toBeVisible();
+});
+
+// Tu capacidad real
+test('Ingresar nombre completo', async () => {
+  await ejecutarPaso(17);
+  await expect(inputNombreCompleto()).toHaveValue('Jose Prudencio Padilla Berrio');
+});
+
+test('Ingresar cédula', async () => {
+  await ejecutarPaso(18);
+  await expect(inputCedula()).toHaveValue('1234567890');
+});
+
+test('Ingresar correo electrónico', async () => {
+  await ejecutarPaso(19);
+  await expect(inputCorreo()).toHaveValue('swo@gmail.com');
+});
+
+test('Ingresar teléfono celular', async () => {
+  await ejecutarPaso(20);
+  await expect(inputCelular()).toHaveValue('1234567890');
+});
+
+test('Autorizar consulta al Banco Pichincha', async () => {
+  await ejecutarPaso(21);
+  await expect(checkAutorizaBanco()).toBeChecked();
+});
+
+test('Ingresar personas que dependen de ti', async () => {
+  await ejecutarPaso(22);
+  await expect(inputCargasFamiliares()).toHaveValue('0');
+});
+
+test('Ingresar lugar de trabajo', async () => {
+  await ejecutarPaso(23);
+  await expect(inputLugarTrabajo()).toHaveValue('SWO');
+});
+
+test('Clic en Siguiente - Tu capacidad real', async () => {
+  await ejecutarPaso(24);
+  await expect(page.getByText('Quiero que me Contacten')).toBeVisible();
+});
 
 
 
