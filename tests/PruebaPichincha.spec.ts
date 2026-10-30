@@ -5,12 +5,23 @@ test.describe.configure({ mode: 'serial' });
 
 let page: Page;
 
-test.beforeAll(async ({ browser }) => {
-  page = await browser.newPage();
+test.beforeAll(async ({ browser }, testInfo) => {
+  // La página es manual (compartida), así que el video se configura aquí y no con `use.video`.
+  const context = await browser.newContext({
+    recordVideo: { dir: testInfo.outputPath('videos'), size: { width: 1280, height: 720 } },
+  });
+  page = await context.newPage();
 });
 
-test.afterAll(async () => {
-  await page.close();
+test.afterAll(async ({}, testInfo) => {
+  const video = page.video();
+  await page.context().close();
+  if (video) {
+    const marcaTiempo = new Date().toISOString().replace(/[:.]/g, '-');
+    const destino = `evidencias/videos/PruebaPichincha-${marcaTiempo}.webm`;
+    await video.saveAs(destino);
+    await testInfo.attach('video-ejecucion', { path: destino, contentType: 'video/webm' });
+  }
 });
 
 test.afterEach(async () => {
